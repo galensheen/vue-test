@@ -5,100 +5,97 @@
     <title>Vue Test</title>
     <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
     <script src="https://cdn.bootcss.com/vue/2.1.6/vue.js"></script>
+    <style>
+      .divider {
+        border: none;
+        border-bottom: 1px solid #eee;
+      }
+    </style>
   </head>
   <body>
-    <div id="app">
-      {{message}}
+    <div id="example">
+      <p>Original message: "{{message}}"</p>
+      <p>filter reversed message: "{{message | reverse}}"</p>
+      <p>Computed reversed message: "{{reversedMessage}}"</p>
     </div>
-    <div id="app-2">
-      <span :title="message">
-        Hover your mouse over me for a few seconds to see my dynamically bound title!
-      </span>
-    </div>
-    <div id="app-3">
-      <p v-if="seen">Now you see me</p>
-    </div>
-    <div id="app-4">
-      <ol>
-        <li v-for="todo in todos">
-          {{todo.text}}
-        </li>
-      </ol>
-    </div>
-    <div id="app-5">
-      <p>{{message}}</p>
-      <button @click="reverseMessage">Reverse Message</button>
-    </div>
-    <div id="app-6">
-      <p>{{message}}</p>
-      <input v-model="message"/>
-    </div>
-    <div id="app-7">
-      <ol>
-        <todo-item v-for="item in groceryList" :todo="item"></todo-item>
-      </ol>
+
+    <ul id="example-1">
+      <template v-for="item in items">
+        <li>{{item.message}}</li>
+        <div class="divider"></div>
+      </template>
+    </ul>
+
+    <ul id="example-2">
+      <li v-for="(item, index) of items">
+        {{parentMessage}} - {{index}} - {{item.message}}
+      </li>
+    </ul>
+
+    <div id="todo-list-example">
+      <input v-model="newTodoText" @keyup.enter="addNewTodo" placeholder="Add a todo"/>
+      <ul>
+        <div is="todo-item" v-for="(todo, index) of todos" :title="todo" @remove="todos.splice(index, 1)"></div>
+      </ul>
     </div>
 
     <script>
-      var app = new Vue({
-        el: '#app',
-        data: {
-          message: 'Hello Vue!'
-        }
+      Vue.filter('reverse', function (value) {
+        return value.toString().split('').reverse().join('');
       });
-      var app2 = new Vue({
-        el: '#app-2',
+      var vm = new Vue({
+        el: '#example',
         data: {
-          message: 'You loaded this page on ' + new Date()
-        }
-      });
-      var app3 = new Vue({
-        el: '#app-3',
-        data: {
-          seen: true
-        }
-      });
-      var app4 = new Vue({
-        el: '#app-4',
-        data: {
-          todos: [
-            {text: 'Learn JavaScript'},
-            {text: 'Learn Vue'},
-            {text: 'Build something awesome'}
-          ]
-        }
-      });
-      var app5 = new Vue({
-        el: '#app-5',
-        data: {
-          message: 'Hello Vue.js'
+          message: 'Hello'
         },
-        methods: {
-          reverseMessage: function () {
-            this.message = this.message.split('').reverse().join('');
+        computed: {
+          reversedMessage: function () {
+            return this.message.split('').reverse().join('');
           }
         }
       });
-      var app6 = new Vue({
-        el: '#app-6',
+      var example1 = new Vue({
+        el: '#example-1',
         data: {
-          message: 'Hello Vue!'
-        }
-      });
-      Vue.component('todo-item', {
-        props: ['todo'],
-        template: '<li>{{todo.text}}</li>'
-      });
-      var app7 = new Vue({
-        el: '#app-7',
-        data: {
-          groceryList: [
-            {text: 'Vegetables'},
-            {text: 'Cheese'},
-            {text: 'Whatever else humans are supposed to eat'}
+          items: [
+            {message: 'Foo'},
+            {message: 'Bar'}
           ]
         }
-      })
+      });
+      var example2 = new Vue({
+        el: '#example-2',
+        data: {
+          parentMessage: 'Parent',
+          items: [
+            {message: 'Foo'},
+            {message: 'Bar'}
+          ]
+        }
+      });
+
+      Vue.component('todo-item', {
+        template: '<li>{{title}}<button @click="$emit(\'remove\')">X</button>',
+        props: ['title']
+      });
+
+      var example3 = new Vue({
+        el: '#todo-list-example',
+        data: {
+          newTodoText: '',
+          todos: [
+            'Do the dished',
+            'Take out the trash',
+            'Mow the lawn'
+          ]
+        },
+        methods: {
+          addNewTodo: function () {
+            this.todos.push(this.newTodoText);
+            this.newTodoText = '';
+          }
+        }
+      });
     </script>
   </body>
 </html>
