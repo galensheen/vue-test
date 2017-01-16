@@ -5,94 +5,53 @@
     <title>Vue Test</title>
     <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
     <script src="https://cdn.bootcss.com/vue/2.1.6/vue.js"></script>
-    <style>
-      .divider {
-        border: none;
-        border-bottom: 1px solid #eee;
-      }
-    </style>
   </head>
   <body>
-    <div id="example">
-      <p>Original message: "{{message}}"</p>
-      <p>filter reversed message: "{{message | reverse}}"</p>
-      <p>Computed reversed message: "{{reversedMessage}}"</p>
+    <div id="example-1">
+      <button @click="counter += 1">增加1</button>
+      <p>这个按钮被点击了{{counter}}次。</p>
     </div>
 
-    <ul id="example-1">
-      <template v-for="item in items">
-        <li>{{item.message}}</li>
-        <div class="divider"></div>
-      </template>
-    </ul>
+    <div id="example-2">
+      <button @click="greet">Greet</button>
+    </div>
 
-    <ul id="example-2">
-      <li v-for="(item, index) of items">
-        {{parentMessage}} - {{index}} - {{item.message}}
-      </li>
-    </ul>
-
-    <div id="todo-list-example">
-      <input v-model="newTodoText" @keyup.enter="addNewTodo" placeholder="Add a todo"/>
-      <ul>
-        <div is="todo-item" v-for="(todo, index) of todos" :title="todo" @remove="todos.splice(index, 1)"></div>
-      </ul>
+    <div id="example-3">
+      <button @click="say('hi')">Say hi</button>
+      <button @click="say('what')">Say what</button>
+      <button @click="warn('Form cannot be submitted yet.', $event)">warning</button>
     </div>
 
     <script>
-      Vue.filter('reverse', function (value) {
-        return value.toString().split('').reverse().join('');
-      });
-      var vm = new Vue({
-        el: '#example',
-        data: {
-          message: 'Hello'
-        },
-        computed: {
-          reversedMessage: function () {
-            return this.message.split('').reverse().join('');
-          }
-        }
-      });
       var example1 = new Vue({
         el: '#example-1',
         data: {
-          items: [
-            {message: 'Foo'},
-            {message: 'Bar'}
-          ]
+          counter: 0
         }
       });
+
       var example2 = new Vue({
         el: '#example-2',
         data: {
-          parentMessage: 'Parent',
-          items: [
-            {message: 'Foo'},
-            {message: 'Bar'}
-          ]
+          name: 'Vue.js'
+        },
+        methods: {
+          greet: function (event) {
+            alert('Hello ' + this.name + '!');
+            alert(event.target.tagName);
+          }
         }
       });
 
-      Vue.component('todo-item', {
-        template: '<li>{{title}}<button @click="$emit(\'remove\')">X</button>',
-        props: ['title']
-      });
-
       var example3 = new Vue({
-        el: '#todo-list-example',
-        data: {
-          newTodoText: '',
-          todos: [
-            'Do the dished',
-            'Take out the trash',
-            'Mow the lawn'
-          ]
-        },
+        el: '#example-3',
         methods: {
-          addNewTodo: function () {
-            this.todos.push(this.newTodoText);
-            this.newTodoText = '';
+          say: function (message) {
+            alert(message);
+          },
+          warn: function (message, event) {
+            if (event) event.preventDefault();
+            alert(message);
           }
         }
       });
