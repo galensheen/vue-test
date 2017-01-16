@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Vue Test</title>
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <script src="https://cdn.bootcss.com/vue/2.1.6/vue.js"></script>
+  </head>
+  <body>
+    <div id="example-1">
+      <button @click="counter += 1">增加1</button>
+      <p>这个按钮被点击了{{counter}}次。</p>
+    </div>
+
+    <div id="example-2">
+      <button @click="greet">Greet</button>
+    </div>
+
+    <div id="example-3">
+      <button @click="say('hi')">Say hi</button>
+      <button @click="say('what')">Say what</button>
+      <button @click="warn('Form cannot be submitted yet.', $event)">warning</button>
+    </div>
+
+    <script>
+      var example1 = new Vue({
+        el: '#example-1',
+        data: {
+          counter: 0
+        }
+      });
+
+      var example2 = new Vue({
+        el: '#example-2',
+        data: {
+          name: 'Vue.js'
+        },
+        methods: {
+          greet: function (event) {
+            alert('Hello ' + this.name + '!');
+            alert(event.target.tagName);
+          }
+        }
+      });
+
+      var example3 = new Vue({
+        el: '#example-3',
+        methods: {
+          say: function (message) {
+            alert(message);
+          },
+          warn: function (message, event) {
+            if (event) event.preventDefault();
+            alert(message);
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
