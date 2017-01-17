@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Vue Test</title>
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <script src="https://cdn.bootcss.com/vue/2.1.6/vue.js"></script>
+  </head>
+  <body>
+    <div id="example">
+      <my-component class="test" :msg="msg"></my-component>
+    </div>
+
+    <div id="counter-event-example">
+      <p>{{total}}</p>
+      <button-counter @increment="incrementTotal"></button-counter>
+      <button-counter @increment="incrementTotal"></button-counter>
+    </div>
+
+    <div id="custom-input">
+      <currency-input v-model="price">$</currency-input>
+      <div>{{price}}</div>
+    </div>
+
+    <script>
+      Vue.component('my-component', {
+        template: '<div>A custom component! and the Number is : {{msg}}</div>',
+        props: {
+          msg: {
+            validator: function (value) {
+              return true;
+            }
+          }
+        }
+      });
+      new Vue({
+        el: '#example',
+        data: {
+          msg: '申国亮'
+        }
+      });
+
+      Vue.component('button-counter', {
+        template: '<button @click="increment">{{counter}}</button>',
+        data: function () {
+          return {
+            counter: 0
+          }
+        },
+        methods: {
+          increment: function () {
+            this.counter += 1;
+            this.$emit('increment')
+          }
+        }
+      });
+
+      new Vue({
+        el: '#counter-event-example',
+        data: {
+          total: 0
+        },
+        methods: {
+          incrementTotal: function () {
+            this.total += 1;
+          }
+        }
+      });
+
+      Vue.component('currency-input', {
+        template: '<span>$<input ref="input" :value="value" @input="updateValue($event.target.value)"></span>',
+        props: ['value'],
+        methods: {
+          updateValue: function (value) {
+            var formattedValue = value.trim().slice(0, value.indexOf('.') + 3);
+            if (formattedValue !== value) {
+              this.$refs.input.value = formattedValue;
+            }
+            this.$emit('input', Number(formattedValue));
+          }
+        }
+      });
+      new Vue({
+        el: '#custom-input',
+        data: {
+          price: 0
+        }
+      })
+    </script>
+  </body>
+</html>
