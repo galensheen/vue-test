@@ -7,48 +7,33 @@
     <script src="https://cdn.bootcss.com/velocity/1.4.1/velocity.min.js"></script>
     <script src="https://cdn.bootcss.com/vue/2.1.6/vue.js"></script>
     <style>
-      .list-item {
-        display: inline-block;
-        margin-right: 10px;
-      }
-      .list-enter-active, .list-leave-active {
-        transition: all 1s;
-      }
-      .list-enter, .list-leave-active {
-        opacity: 0;
-        transform: translateY(30px);
+      .flip-list-move {
+        transition: transform 1s;
       }
     </style>
   </head>
   <body>
-    <div id="list-demo" class="demo">
-      <button @click="add">Add</button>
-      <button @click="remove">Remove</button>
-      <transition-group name="list" tag="p">
-        <span v-for="item of items" :key="item" class="list-item">{{item}}</span>
+
+    <div id="flip-list-demo" class="demo">
+      <button @click="shuffle">Shuffle</button>
+      <transition-group name="flip-list" tag="ul">
+        <li v-for="item of items" :key="item">{{item}}</li>
       </transition-group>
     </div>
 
-    <div id="flip-list-demo" class="demo">
-
-    </div>
-
     <script>
-      var listDemo = new Vue({
-        el: '#list-demo',
+      new Vue({
+        el: '#flip-list-demo',
         data: {
-          items: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-          nextNum: 10
+          items: [1,2,3,4,5,6,7,8,9]
         },
         methods: {
-          randomIndex: function () {
-            return Math.floor(Math.random() * this.items.length);
-          },
-          add: function () {
-            this.items.splice(this.randomIndex(), 0, this.nextNum++);
-          },
-          remove: function () {
-            this.items.splice(this.randomIndex(), 1);
+          shuffle: function () {
+            var temp = [];
+            while(this.items.length > 0) {
+              temp = temp.concat(this.items.splice(Math.floor(Math.random() * this.items.length), 1));
+            }
+            this.items = temp;
           }
         }
       });
