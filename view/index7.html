@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <script src="https://cdn.bootcss.com/velocity/1.4.1/velocity.min.js"></script>
+    <script src="https://cdn.bootcss.com/vue/2.1.6/vue.js"></script>
+    <style>
+      .fade-enter-active, .fade-leave-active {
+        transition: all 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      }
+      .fade-enter, .fade-leave-active {
+        transform: translateX(10px);
+        opacity: 0;
+      }
+
+      .bounce-enter-active {
+        animation: bounce-in 5s;
+      }
+      .bounce-leave-active {
+        animation: bounce-out 5s;
+      }
+
+      #example-5 {
+        position: relative;
+        margin: 20px;
+      }
+      #example-5 button {
+        position: absolute;
+      }
+
+      .fade2-leave-active{
+        transition: all 0.6s;
+      }
+      .fade2-enter-active {
+        transition: all 0.6s;
+      }
+      .fade2-enter {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      .fade2-leave-active {
+        transform: translateX(-50px);
+        opacity: 0;
+      }
+
+      @keyframes bounce-in {
+        0% {transform: scale(0);}
+        50% {transform: scale(1.5);}
+        100% {transform: scale(1)}
+      }
+      @keyframes bounce-out {
+        0% {transform: scale(1);}
+        50% {transform: scale(1.5);}
+        100% {transform: scale(0);}
+      }
+    </style>
+  </head>
+  <body>
+    <div id="example-1">
+      <button @click="show = !show">Toggle</button>
+      <transition name="fade">
+        <p v-if="show">hello</p>
+      </transition>
+    </div>
+
+    <div id="example-2">
+      <button @click="show = !show">Toggle show</button>
+      <transition name="bounce">
+        <p v-if="show">Look at me!</p>
+      </transition>
+    </div>
+
+    <div id="example-4">
+      <button @click="show = !show">Toggle</button>
+      <transition @before-enter="beforeEnter" @enter="enter" @leave="leave" :css="false">
+        <p v-if="show">
+          Demo
+        </p>
+      </transition>
+    </div>
+
+    <div id="example-5">
+      <transition name="fade2" mode="none">
+        <button :key="state" @click="next">
+          {{buttonMessage}}
+        </button>
+      </transition>
+    </div>
+
+    <script>
+      var example5 = new Vue({
+        el: '#example-5',
+        data: {
+          stateType: ['saved', 'edited', 'editing'],
+          index: 0
+        },
+        methods: {
+          next: function () {
+            this.index = (this.index + 1) % 3;
+          }
+        },
+        computed: {
+          state: function () {
+            return this.stateType[this.index];
+          },
+          buttonMessage: function () {
+            switch (this.stateType[this.index]) {
+              case 'saved': return 'Edit';
+              case 'edited': return 'Save';
+              case 'editing': return 'Cancel';
+            }
+          }
+        }
+      });
+
+      new Vue({
+        el: '#example-1',
+        data: {
+          show: true
+        }
+      });
+
+      new Vue({
+        el: '#example-2',
+        data: {
+          show: true
+        }
+      });
+
+      var example4 = new Vue({
+        el: '#example-4',
+        data: {
+          show: false
+        },
+        methods: {
+          beforeEnter: function (el) {
+            el.style.opacity = 0;
+            el.style.transformOrigin = 'left';
+          },
+          enter: function (el, done) {
+            Velocity(el, {opacity: 1, fontSize: '1.4em'}, {duration: 300});
+            Velocity(el, {fontSize: '1em'}, {complete: done})
+          },
+          leave: function (el, done) {
+            Velocity(el, {translateX: '15px', rotateZ: '50deg'}, {duration: 600});
+            Velocity(el, {rotateZ: '100deg'}, {loop: 2});
+            Velocity(el, {
+              rotateZ: '45deg',
+              translateY: '30px',
+              translateX: '30px',
+              opacity: 0
+            }, {complete: done});
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
