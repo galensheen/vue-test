@@ -5,35 +5,39 @@
     <title>Test</title>
     <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
     <script src="https://cdn.bootcss.com/velocity/1.4.1/velocity.min.js"></script>
+    <script src="https://cdn.bootcss.com/tween.js/r14/Tween.min.js"></script>
     <script src="https://cdn.bootcss.com/vue/2.1.6/vue.js"></script>
     <style>
-      .flip-list-move {
-        transition: transform 1s;
-      }
     </style>
   </head>
   <body>
-
-    <div id="flip-list-demo" class="demo">
-      <button @click="shuffle">Shuffle</button>
-      <transition-group name="flip-list" tag="ul">
-        <li v-for="item of items" :key="item">{{item}}</li>
-      </transition-group>
+    <div id="animated-number-demo">
+      <input v-model.number="number" type="number" step="20">
+      <p>{{animatedNumber}}</p>
     </div>
 
     <script>
       new Vue({
-        el: '#flip-list-demo',
+        el: '#animated-number-demo',
         data: {
-          items: [1,2,3,4,5,6,7,8,9]
+          number: 0,
+          animatedNumber: 0
         },
-        methods: {
-          shuffle: function () {
-            var temp = [];
-            while(this.items.length > 0) {
-              temp = temp.concat(this.items.splice(Math.floor(Math.random() * this.items.length), 1));
+        watch: {
+          number: function (newValue, oldValue) {
+            var vm = this;
+            function animate(time) {
+              requestAnimationFrame(animate);
+              TWEEN.update(time);
             }
-            this.items = temp;
+            new TWEEN.Tween({tweeningNumber: oldValue})
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .to({tweeningNumber: newValue}, 500)
+              .onUpdate(function () {
+                vm.animatedNumber = this.tweeningNumber.toFixed(0);
+              })
+              .start();
+            animate();
           }
         }
       });

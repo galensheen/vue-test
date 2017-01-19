@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <script src="https://cdn.bootcss.com/velocity/1.4.1/velocity.min.js"></script>
+    <script src="https://cdn.bootcss.com/vue/2.1.6/vue.js"></script>
+    <style>
+      .flip-list-move {
+        transition: transform 1s;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div id="flip-list-demo" class="demo">
+      <button @click="shuffle">Shuffle</button>
+      <transition-group name="flip-list" tag="ul">
+        <li v-for="item of items" :key="item">{{item}}</li>
+      </transition-group>
+    </div>
+
+    <script>
+      new Vue({
+        el: '#flip-list-demo',
+        data: {
+          items: [1,2,3,4,5,6,7,8,9]
+        },
+        methods: {
+          shuffle: function () {
+            var temp = [];
+            while(this.items.length > 0) {
+              temp = temp.concat(this.items.splice(Math.floor(Math.random() * this.items.length), 1));
+            }
+            this.items = temp;
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
