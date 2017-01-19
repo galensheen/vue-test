@@ -4,101 +4,116 @@
     <meta charset="UTF-8">
     <title>Test</title>
     <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
-    <script src="https://cdn.bootcss.com/velocity/1.4.1/velocity.min.js"></script>
-    <script src="https://cdn.bootcss.com/tween.js/r14/Tween.min.js"></script>
-    <script src="https://cdn.bootcss.com/tinycolor/1.4.1/tinycolor.min.js"></script>
+    <!--<script src="https://cdn.bootcss.com/velocity/1.4.1/velocity.min.js"></script>-->
+    <!--<script src="https://cdn.bootcss.com/tween.js/r14/Tween.min.js"></script>-->
+    <!--<script src="https://cdn.bootcss.com/tinycolor/1.4.1/tinycolor.min.js"></script>-->
     <script src="https://cdn.bootcss.com/vue/2.1.6/vue.js"></script>
     <style>
-      .color-preview {
-        display: inline-block;
-        width: 50px;
-        height: 50px;
+      svg {display:block;}
+      polygon {fill: #41b883}
+      circle {
+        fill: transparent;
+        stroke: #35495e;
       }
+      input[type="range"] {
+        display: block;
+        width: 100%;
+        margin-bottom: 15px;
+      }
+
     </style>
   </head>
   <body>
-    <div id="animated-number-demo">
-      <input v-model.number="number" type="number" step="20">
-      <p>{{animatedNumber}}</p>
+    <div id="app">
+      <svg width="200" height="200">
+        <polygon :points="points"></polygon>
+        <circle cx="100" cy="100" r="90"></circle>
+      </svg>
+      <label>Sides: {{sides}}</label>
+      <input type="range" min="3" max="500" v-model.number="sides"/>
+      <label>Minimum Radius: {{minRadius}}%</label>
+      <input type="range" min="0" max="90" v-model.number="minRadius"/>
+      <label>Update Interval: {{updateInterval}} milliseconds</label>
+      <input type="range" min="10" max="2000" v-model.number="updateInterval"/>
     </div>
-
-    <div id="animated-color">
-      <input v-model="colorQuery" @keyup.enter="updateColor" placeholder="Enter a color"/>
-      <button @click="updateColor">Update</button>
-      <p>Preview:</p>
-      <span :style="{backgroundColor: tweenedCSSColor}" class="color-preview"></span>
-      <p>{{tweenedCSSColor}}</p>
-    </div>
-
     <script>
       new Vue({
-        el: '#animated-number-demo',
-        data: {
-          number: 0,
-          animatedNumber: 0
+        el: '#app',
+        data: function () {
+          var defaultSides = 10;
+          var stats = Array.apply(null, {length: defaultSides}).map(function () {return 100});
+          return {
+            stats: stats,
+            points: generatePoints(stats),
+            sides: defaultSides,
+            minRadius: 50,
+            interval: null,
+            updateInterval: 500
+          }
         },
         watch: {
-          number: function (newValue, oldValue) {
-            var vm = this;
-            function animate(time) {
-              requestAnimationFrame(animate);
-              TWEEN.update(time);
+          sides: function (newSides, oldSides) {
+            var sidesDifference = newSides - oldSides;
+            if (sidesDifference > 0) {
+              for (var i = 1; i <= sidesDifference; i++) {
+                this.stats.push(this.newRandomValue());
+              }
+            } else {
+              var absoluteSidesDifference = Math.abs(sidesDifference);
+              for (var i = 1; i <= absoluteSidesDifference; i++) {
+                this.stats.shift();
+              }
             }
-            new TWEEN.Tween({tweeningNumber: oldValue})
-              .easing(TWEEN.Easing.Quadratic.Out)
-              .to({tweeningNumber: newValue}, 500)
-              .onUpdate(function () {
-                vm.animatedNumber = this.tweeningNumber.toFixed(0);
-              })
-              .start();
-            animate();
+          },
+          stats: function (newStatus) {
+            TweenLite.to(this.$data, this.updateInterval / 1000, {points: generagePoints(newStatus)});
+          },
+          updateInterval: function () {
+            this.resetInterval();
+          }
+        },
+        mounted: function () {
+          this.resetInterval();
+        },
+        methods: {
+          randomizeStats: function () {
+            var vm = this;
+            this.stats = this.stats.map(function () {
+              return vm.newRandomValue();
+            });
+          },
+          newRandomValue: function () {
+            return Math.ceil(this.minRadius + Math.random() * (100 - this.minRadius));
+          },
+          resetInterval: function () {
+            var vm = this;
+            clearInterval(this.interval);
+            this.randomizeStats();
+            this.interval = setInterval(function () {
+              vm.randomizeStats();
+            }, this.updateInterval);
           }
         }
       });
 
-      new Vue({
-        el: '#animated-color',
-        data: {
-          colorQuery: '',
-          color: {
-            r: 0,
-            g: 0,
-            b: 0,
-            a: 1
-          },
-          tweenedColor: {}
-        },
-        created: function () {
-          this.tweenedColor = Object.assign({}, this.color);
-        },
-        watch: {
-          color: function () {
-            function animate(time) {
-              requestAnimationFrame(animate);
-              TWEEN.update(time);
-            }
-            new TWEEN.Tween(this.tweenedColor)
-              .to(this.color, 750)
-              .start();
-            animate();
-          }
-        },
-        computed: {
-          tweenedCSSColor: function () {
-            return new tinycolor({
-              r: this.tweenedColor.r,
-              g: this.tweenedColor.g,
-              b: this.tweenedColor.b,
-              a: this.tweenedColor.a
-            }).toHexString();
-          }
-        },
-        methods: {
-          updateColor: function () {
-            this.color = new tinycolor(this.colorQuery).toRgb()
-          }
-        }
-      })
+      function valueToPoint(value, index, total) {
+        var x = 0;
+        var y = -value * 0.9;
+        var angle = Math.PI * 2 / total * index;
+        var cos = Math.cos(angle);
+        var sin = Math.sin(angle);
+        var tx = x * cos - y * sin + 100;
+        var ty = x * sin + y * cos + 100;
+        return {x: tx, y: ty};
+      }
+
+      function generagePoints(stats) {
+        var total = stats.length;
+        return stats.map(function (stat, index) {
+          var point = valueToPoint(stat, index, total);
+          return point.x + ',' + point.y;
+        }).join(' ');
+      }
     </script>
   </body>
 </html>

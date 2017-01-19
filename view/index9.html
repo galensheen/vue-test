@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <script src="https://cdn.bootcss.com/velocity/1.4.1/velocity.min.js"></script>
+    <script src="https://cdn.bootcss.com/tween.js/r14/Tween.min.js"></script>
+    <script src="https://cdn.bootcss.com/tinycolor/1.4.1/tinycolor.min.js"></script>
+    <script src="https://cdn.bootcss.com/vue/2.1.6/vue.js"></script>
+    <style>
+      .color-preview {
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="animated-number-demo">
+      <input v-model.number="number" type="number" step="20">
+      <p>{{animatedNumber}}</p>
+    </div>
+
+    <div id="animated-color">
+      <input v-model="colorQuery" @keyup.enter="updateColor" placeholder="Enter a color"/>
+      <button @click="updateColor">Update</button>
+      <p>Preview:</p>
+      <span :style="{backgroundColor: tweenedCSSColor}" class="color-preview"></span>
+      <p>{{tweenedCSSColor}}</p>
+    </div>
+
+    <script>
+      new Vue({
+        el: '#animated-number-demo',
+        data: {
+          number: 0,
+          animatedNumber: 0
+        },
+        watch: {
+          number: function (newValue, oldValue) {
+            var vm = this;
+            function animate(time) {
+              requestAnimationFrame(animate);
+              TWEEN.update(time);
+            }
+            new TWEEN.Tween({tweeningNumber: oldValue})
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .to({tweeningNumber: newValue}, 500)
+              .onUpdate(function () {
+                vm.animatedNumber = this.tweeningNumber.toFixed(0);
+              })
+              .start();
+            animate();
+          }
+        }
+      });
+
+      new Vue({
+        el: '#animated-color',
+        data: {
+          colorQuery: '',
+          color: {
+            r: 0,
+            g: 0,
+            b: 0,
+            a: 1
+          },
+          tweenedColor: {}
+        },
+        created: function () {
+          this.tweenedColor = Object.assign({}, this.color);
+        },
+        watch: {
+          color: function () {
+            function animate(time) {
+              requestAnimationFrame(animate);
+              TWEEN.update(time);
+            }
+            new TWEEN.Tween(this.tweenedColor)
+              .to(this.color, 750)
+              .start();
+            animate();
+          }
+        },
+        computed: {
+          tweenedCSSColor: function () {
+            return new tinycolor({
+              r: this.tweenedColor.r,
+              g: this.tweenedColor.g,
+              b: this.tweenedColor.b,
+              a: this.tweenedColor.a
+            }).toHexString();
+          }
+        },
+        methods: {
+          updateColor: function () {
+            this.color = new tinycolor(this.colorQuery).toRgb()
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
