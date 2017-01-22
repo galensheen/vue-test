@@ -13,9 +13,25 @@
     </style>
   </head>
   <body>
+    <div id="app">
+      <anchored-heading level="1">Hello</anchored-heading>
+    </div>
 
     <script>
-
+      Vue.component('anchored-heading', {
+        render: function (createElement) {
+          return createElement('div' + this.level, this.$slots.default);
+        },
+        props: {
+          level: {
+            type: Number,
+            required: true
+          }
+        }
+      });
+      new Vue({
+        el: '#app'
+      })
     </script>
   </body>
 </html>
