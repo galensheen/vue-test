@@ -14,25 +14,34 @@
   </head>
   <body>
     <div id="app">
-      <anchored-heading :level="1">Hello</anchored-heading>
+      <input type="text" v-focus/>
     </div>
 
-
     <script>
-      Vue.component('anchored-heading', {
-        render: function (createElement) {
-          return createElement('h' + this.level, this.$slots.default);
-        },
-        props: {
-          level: {
-            type: Number,
-            required: true
-          }
+      Vue.directive('focus', {
+        inserted: function (el) {
+          el.focus();
         }
       });
+
       new Vue({
         el: '#app'
       });
+
+      var myMixin = {
+        created: function () {
+          this.hello();
+        },
+        methods: {
+          hello: function () {
+            console.log('Hello from mixin!');
+          }
+        }
+      };
+      var Component = Vue.extend({
+        mixins: [myMixin]
+      });
+      var component = new Component();
     </script>
   </body>
 </html>
